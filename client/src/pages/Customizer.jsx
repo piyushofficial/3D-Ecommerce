@@ -35,12 +35,69 @@ const Customizer = () => {
       case "colorpicker":
         return <ColorPicker />;
       case "filepicker":
-        return <FilePicker />;
+        return <FilePicker file={file} setFile={setFile} readFile={readFile} />;
       case "aipicker":
-        return <AIPicker />;
+        return (
+          <AIPicker
+            prompt={prompt}
+            setPrompt={setPrompt}
+            generatingImg={generatingImg}
+            handleSubmit={handleSubmit}
+          />
+        );
       default:
         return null;
     }
+  };
+
+  const handleSubmit = async (type) => {
+    if (!prompt) return alert("Please enter a prompt");
+
+    try {
+    } catch (error) {
+      alert(error);
+    } finally {
+      setgeneratingImg(false);
+      setActiveEditorTab("");
+    }
+  };
+
+  const handleDecals = (type, result) => {
+    const decaltype = DecalTypes[type];
+    state[decaltype.stateProperty] = result;
+
+    if (!activeFilterTab[decaltype.filterTab]) {
+      handleActiveFilterTab(decaltype.filterTab);
+    }
+  };
+
+  const handleActiveFilterTab = (tabName) => {
+    switch (tabName) {
+      case "logoShirt":
+        state.isLogoTexture = !activeFilterTab[tabName];
+        break;
+      case "stylishShirt":
+        state.isFullTexture = !activeFilterTab[tabName];
+        break;
+      default:
+        state.isLogoTexture = true;
+        state.isFullTexture = false;
+        break;
+    }
+
+    setActiveFilterTab((prevState) => {
+      return {
+        ...prevState,
+        [tabName]: !prevState[tabName],
+      };
+    });
+  };
+
+  const readFile = (type) => {
+    reader(file).then((result) => {
+      handleDecals(type, result);
+      setActiveEditorTab("");
+    });
   };
   return (
     <AnimatePresence>
@@ -85,8 +142,8 @@ const Customizer = () => {
                 key={tab.name}
                 tab={tab}
                 isFilterTab
-                isActiveTab=""
-                handleClick={() => {}}
+                isActiveTab={activeFilterTab[tab.name]}
+                handleClick={() => handleActiveFilterTab(tab.name)}
               />
             ))}
           </motion.div>
